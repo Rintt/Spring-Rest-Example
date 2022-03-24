@@ -32,9 +32,7 @@ public class Customer {
     @NotBlank
     @Setter
     private String lastname;
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<Order> orders = new HashSet<>();
-
 }

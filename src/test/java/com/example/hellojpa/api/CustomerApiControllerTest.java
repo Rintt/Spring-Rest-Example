@@ -119,6 +119,46 @@ class CustomerApiControllerTest {
         Assertions.assertThat(customer).usingRecursiveComparison().isEqualTo(savedCustomer);
 
     }
+    @Test
+    void testInsertValidates() throws Exception {
+        var customer = new CustomerApiDTO("C001", "", "Mensch");
+        var json = objectMapper.writeValueAsString(customer);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    @Test
+    void testNotFound() throws Exception {
+        var unknown = "unknown";
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/customer/{customerNbr}", unknown))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+        Mockito.verify(customerRepository).findByCustomerNbr(unknown, CustomerApiDTO.class);
+    }
+    @Test
+    void testInsert2() throws Exception {
+        var customer = new CustomerApiDTO("C001", "Test", "Mensch");
+        var mockCustomerEntity = Customer.builder()
+                .id(UUID.randomUUID())
+                .firstname(customer.firstname())
+                .lastname(customer.lastname())
+                .customerNbr(customer.customerNbr())
+                .build();
+        Mockito.when(customerRepository.save(ArgumentMatchers.any())).thenReturn(mockCustomerEntity);
+        var json = objectMapper.writeValueAsString(customer);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.header()
+                        .string("Location",
+                                "http://localhost/api/customer/" + customer.customerNbr()));
+        var argumentCaptor = ArgumentCaptor.forClass(Customer.class);
+        Mockito.verify(customerRepository).save(argumentCaptor.capture());
+        var savedCustomer = argumentCaptor.getValue();
+        Assertions.assertThat(customer).usingRecursiveComparison().isEqualTo(savedCustomer);
+    }
+
 
 
 }

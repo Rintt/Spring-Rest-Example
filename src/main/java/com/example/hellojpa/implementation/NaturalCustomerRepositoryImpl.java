@@ -13,12 +13,11 @@ import java.util.Optional;
 public class NaturalCustomerRepositoryImpl implements NaturalCustomerRepository {
     @PersistenceContext
     private EntityManager entityManager;
-
     @Override
-    public Optional<Customer> findByNaturalId(String naturalId) {
+    public Optional<Customer> findByNaturalId(String customerNbr) {
         Optional<Customer> entity = entityManager.unwrap(Session.class)
                 .bySimpleNaturalId(Customer.class)
-                .loadOptional(naturalId);
+                .loadOptional(customerNbr);
         return entity;
     }
 }

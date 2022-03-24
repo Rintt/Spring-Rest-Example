@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CustomerRepository extends JpaRepository<Customer, UUID>/*, NaturalCustomerRepository */
+public interface CustomerRepository extends JpaRepository<Customer, UUID>
 {
     <T> Optional<T> findByCustomerNbr(String customerNbr, Class<T> type);
     List<Customer> findByLastname(String lastname);
